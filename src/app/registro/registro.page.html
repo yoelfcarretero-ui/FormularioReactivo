@@ -1,0 +1,90 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Gestión de Inventario</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="theme.toggle()"
+        [attr.aria-label]="theme.oscuro() ? 'Activar modo claro' : 'Activar modo oscuro'">
+        <ion-icon slot="icon-only" [name]="theme.oscuro() ? 'sunny' : 'moon'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment value="registro">
+      <ion-segment-button value="registro" routerLink="/registro">
+        <ion-label>Reactivo</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="driven" routerLink="/driven">
+        <ion-label>Template-driven</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="contenedor">
+    <form [formGroup]="productoForm" (ngSubmit)="onSubmit()">
+      <ion-list lines="full">
+
+        <ion-item>
+          <ion-input label="Código de barras (SKU)" labelPlacement="floating"
+            type="text" maxlength="12" formControlName="sku"
+            [errorText]="errorSku"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Nombre del producto" labelPlacement="floating"
+            type="text" formControlName="nombre"
+            errorText="El nombre es obligatorio."></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-select label="Categoría" labelPlacement="floating"
+            formControlName="categoria" interface="popover">
+            @for (c of categorias; track c) {
+              <ion-select-option [value]="c">{{ c }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Stock mínimo" labelPlacement="floating"
+            type="number" inputmode="numeric" formControlName="stockMinimo"
+            [errorText]="errorStock"></ion-input>
+        </ion-item>
+
+        <!-- Campo nuevo: no se permite una fecha posterior a hoy -->
+        <ion-item>
+          <ion-input label="Fecha de nacimiento" labelPlacement="stacked"
+            type="date" [max]="hoy" formControlName="fechaNacimiento"
+            [errorText]="errorFecha"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Contraseña" labelPlacement="floating"
+            type="password" formControlName="password"
+            [errorText]="errorPassword"></ion-input>
+        </ion-item>
+
+      </ion-list>
+
+      <div class="ion-padding-top">
+        <ion-button expand="block" type="submit"
+          [disabled]="productoForm.invalid || isSubmitting()">
+          @if (!isSubmitting()) { <span>Guardar producto</span> }
+          @else { <ion-spinner name="crescent"></ion-spinner> }
+        </ion-button>
+
+        @if (ultimoEnvio()) {
+          <ion-button expand="block" fill="outline" (click)="descargarPdf()">
+            <ion-icon slot="start" name="download-outline"></ion-icon>
+            Descargar PDF
+          </ion-button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <ion-toast [isOpen]="toastAbierto()" message="Formulario enviado correctamente. Producto guardado."
+    [duration]="2500" color="success" position="bottom"
+    (didDismiss)="toastAbierto.set(false)"></ion-toast>
+</ion-content>

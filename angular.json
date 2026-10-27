@@ -35,6 +35,7 @@
             ],
             "styles": ["src/global.scss", "src/theme/variables.scss"],
             "scripts": [],
+            "allowedCommonJsDependencies": ["jspdf", "html2canvas", "canvg", "core-js", "raf", "rgbcolor"],
             "browser": "src/main.ts"
           },
           "configurations": {

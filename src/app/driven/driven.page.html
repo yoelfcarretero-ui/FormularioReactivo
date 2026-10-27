@@ -1,0 +1,96 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Gestión de Inventario</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="theme.toggle()"
+        [attr.aria-label]="theme.oscuro() ? 'Activar modo claro' : 'Activar modo oscuro'">
+        <ion-icon slot="icon-only" [name]="theme.oscuro() ? 'sunny' : 'moon'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment value="driven">
+      <ion-segment-button value="registro" routerLink="/registro">
+        <ion-label>Reactivo</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="driven" routerLink="/driven">
+        <ion-label>Template-driven</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="contenedor">
+    <!-- Toda la validación está declarada en la plantilla -->
+    <form #productoForm="ngForm" (ngSubmit)="onSubmit(productoForm)">
+      <ion-list lines="full">
+
+        <ion-item>
+          <ion-input label="Código de barras (SKU)" labelPlacement="floating"
+            type="text" maxlength="12" name="sku" [(ngModel)]="producto.sku"
+            #sku="ngModel" required appSku [disabled]="isSubmitting()"
+            [errorText]="sku.hasError('required') ? 'El SKU es obligatorio.' : 'Debe tener exactamente 12 caracteres alfanuméricos.'"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Nombre del producto" labelPlacement="floating"
+            type="text" name="nombre" [(ngModel)]="producto.nombre"
+            required [disabled]="isSubmitting()"
+            errorText="El nombre es obligatorio."></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-select label="Categoría" labelPlacement="floating" interface="popover"
+            name="categoria" [(ngModel)]="producto.categoria"
+            required [disabled]="isSubmitting()">
+            @for (c of categorias; track c) {
+              <ion-select-option [value]="c">{{ c }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Stock mínimo" labelPlacement="floating"
+            type="number" inputmode="numeric" name="stockMinimo" [(ngModel)]="producto.stockMinimo"
+            #stock="ngModel" required [appMin]="1" [disabled]="isSubmitting()"
+            [errorText]="stock.hasError('required') ? 'El stock mínimo es obligatorio.' : 'El valor debe ser mayor que 0.'"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Fecha de nacimiento" labelPlacement="stacked"
+            type="date" [max]="hoy" name="fechaNacimiento" [(ngModel)]="producto.fechaNacimiento"
+            #fecha="ngModel" required appFechaNoFutura [disabled]="isSubmitting()"
+            [errorText]="fecha.hasError('required') ? 'La fecha de nacimiento es obligatoria.' : 'La fecha no puede ser posterior a hoy.'"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Contraseña" labelPlacement="floating"
+            type="password" name="password" [(ngModel)]="producto.password"
+            #password="ngModel" required [pattern]="passwordPattern" [disabled]="isSubmitting()"
+            [errorText]="password.hasError('required') ? 'La contraseña es obligatoria.' : 'Mínimo 8 caracteres, letras y números.'"></ion-input>
+        </ion-item>
+
+      </ion-list>
+
+      <div class="ion-padding-top">
+        <ion-button expand="block" type="submit"
+          [disabled]="productoForm.invalid || isSubmitting()">
+          @if (!isSubmitting()) { <span>Guardar producto</span> }
+          @else { <ion-spinner name="crescent"></ion-spinner> }
+        </ion-button>
+
+        @if (ultimoEnvio()) {
+          <ion-button expand="block" fill="outline" (click)="descargarPdf()">
+            <ion-icon slot="start" name="download-outline"></ion-icon>
+            Descargar PDF
+          </ion-button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <ion-toast [isOpen]="toastAbierto()" message="Formulario enviado correctamente. Producto guardado."
+    [duration]="2500" color="success" position="bottom"
+    (didDismiss)="toastAbierto.set(false)"></ion-toast>
+</ion-content>
